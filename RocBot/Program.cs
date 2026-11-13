@@ -16,8 +16,8 @@ builder.Services.ConfigureDiscordHandlers();
 builder.Services.AddCommandsExtension((sp, cx) =>
 {
     cx.AddCommands([
-        typeof(LoveCommand)
-        // typeof(PetPetCommand),
+        typeof(LoveCommand),
+        typeof(PetPetCommand),
         // typeof(ScoreCommand)
     ]);
 

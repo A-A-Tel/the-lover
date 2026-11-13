@@ -55,7 +55,7 @@ public class LoveCommand
     
     [Command("love")]
     [Description("Love another user (anonymously) :D")]
-    public async ValueTask Love(
+    public async ValueTask Execute(
         CommandContext context,
         [Parameter("user"), Description("The one receiving the love")] DiscordUser targetUser,
         [Parameter("i_am_shy"), Description("For if you wish to love someone in secret :)")] bool isShy)
