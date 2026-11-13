@@ -18,6 +18,27 @@ public class PetPetCommand(
         [Parameter("user"), Description("The user deserving of pets.")] DiscordUser targetUser
     )
     {
+        if (targetUser.IsBot)
+        {
+            DiscordInteractionResponseBuilder clankerResponse = new DiscordInteractionResponseBuilder()
+                .WithContent("Clankers do not deserve pets.")
+                .AsEphemeral();
+            
+            
+            await context.RespondAsync(clankerResponse);
+            return;
+        }
+        
+        if (targetUser.Id == context.User.Id)
+        {
+            DiscordInteractionResponseBuilder selfResponse = new DiscordInteractionResponseBuilder()
+                .WithContent("Find someone else to pet you!")
+                .AsEphemeral();
+            
+            await context.RespondAsync(selfResponse);
+            return;
+        }
+        
         string avatarUrl = targetUser.GetAvatarUrl(MediaFormat.Png, 512);
 
         await using var avatarStream = await httpClient.GetStreamAsync(avatarUrl);
