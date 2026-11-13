@@ -6,9 +6,13 @@ using DSharpPlus.Extensions;
 using RocBot;
 using RocBot.Commands;
 using RocBot.Handlers;
+using RocBot.Services;
 
 Env.Load();
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
+
+
+#region Bot config
 
 builder.Services.AddDiscordClient(Env.GetString("BOT_TOKEN"), DiscordIntents.All);
 builder.Services.ConfigureDiscordHandlers();
@@ -16,16 +20,20 @@ builder.Services.ConfigureDiscordHandlers();
 builder.Services.AddCommandsExtension((sp, cx) =>
 {
     cx.AddCommands([
-        typeof(LoveCommand)
-        // typeof(PetPetCommand),
+        typeof(LoveCommand),
+        typeof(PetPetCommand),
         // typeof(ScoreCommand)
     ]);
 
     cx.AddProcessor(sp.GetRequiredService<SlashCommandProcessor>());
 });
 builder.Services.AddSingleton<SlashCommandProcessor>();
-
 builder.Services.AddHostedService<Worker>();
+
+#endregion
+
+builder.Services.AddSingleton(_ => PetPetGenerator.FromDirectory("Assets/PetPet"));
+builder.Services.AddSingleton<HttpClient>();
 
 IHost host = builder.Build();
 await host.RunAsync();
