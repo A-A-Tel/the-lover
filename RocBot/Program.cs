@@ -5,6 +5,7 @@ using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Extensions;
 using RocBot;
 using RocBot.Commands;
+using RocBot.Database;
 using RocBot.Handlers;
 using RocBot.Services;
 
@@ -34,6 +35,7 @@ builder.Services.AddHostedService<Worker>();
 
 builder.Services.AddSingleton(_ => PetPetGenerator.FromDirectory("Assets/PetPet"));
 builder.Services.AddSingleton<HttpClient>();
+builder.Services.AddDbContext<AppDbContext>();
 
 IHost host = builder.Build();
 await host.RunAsync();
