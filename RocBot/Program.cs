@@ -12,7 +12,6 @@ using RocBot.Services;
 Env.Load();
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
-
 #region Bot config
 
 builder.Services.AddDiscordClient(Env.GetString("BOT_TOKEN"), DiscordIntents.All);
@@ -33,16 +32,25 @@ builder.Services.AddHostedService<Worker>();
 
 #endregion
 
+#region Services
+
 builder.Services.AddSingleton(_ => PetPetGenerator.FromDirectory("Assets/PetPet"));
 builder.Services.AddSingleton<HttpClient>();
 builder.Services.AddDbContext<AppDbContext>();
 builder.Services.AddScoped<LoveActionService>();
 
+#endregion
+
 IHost host = builder.Build();
+
+#region Database
+
 
 using (IServiceScope scope = host.Services.CreateScope())
 {
     scope.ServiceProvider.GetRequiredService<AppDbContext>().Database.EnsureCreated();
 }
+
+#endregion
 
 await host.RunAsync();

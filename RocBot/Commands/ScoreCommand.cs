@@ -17,14 +17,14 @@ public class ScoreCommand(
         [Parameter("loving_user"), Description("The user that has loved.")] DiscordUser? user = null
         )
     {
-        string message = user == null ? GetFullScoreboardMessage() : GetUserScoreMessage(user.Id);
+        string message = user == null ? await GetFullScoreboardMessage() : await GetUserScoreMessage(user.Id);
         
         await context.RespondAsync(message);
     }
 
-    private string GetFullScoreboardMessage()
+    private async Task<string> GetFullScoreboardMessage()
     {
-        IEnumerable<LeaderboardEntry> entries = loveActionService.GetLeaderboard();
+        IEnumerable<LeaderboardEntry> entries = await loveActionService.GetLeaderboardAsync();
 
         StringBuilder builder = new("Top lovers of all time: \n\n");
 
@@ -38,9 +38,9 @@ public class ScoreCommand(
         return builder.ToString();
     }
 
-    private string GetUserScoreMessage(ulong userId)
+    private async Task<string> GetUserScoreMessage(ulong userId)
     {
-        IEnumerable<UserLoveEntry> entries = loveActionService.GetUserLoveEntries(userId);
+        IEnumerable<UserLoveEntry> entries = await loveActionService.GetUserLoveEntriesAsync(userId);
 
         StringBuilder builder = new($"Love stats for <@{userId}>:\n\n");
 
@@ -48,7 +48,7 @@ public class ScoreCommand(
         foreach (UserLoveEntry entry in entries)
         {
             i++;
-            string target = entry.Loved.HasValue ? $"<@{entry.Loved.Value}>" : "Everyone / General";
+            string target = entry.Loved.HasValue ? $"<@{entry.Loved.Value}>" : "(Anonymous loving)";
             builder.AppendLine($"{i}. {target} ({entry.Amount})");
         }
 

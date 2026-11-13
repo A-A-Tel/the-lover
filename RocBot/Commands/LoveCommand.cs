@@ -2,10 +2,13 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using DSharpPlus.Commands;
 using DSharpPlus.Entities;
+using RocBot.Services;
 
 namespace RocBot.Commands;
 
-public class LoveCommand
+public class LoveCommand(
+    LoveActionService loveActionService
+    )
 {
     private Random _random = new Random();
 
@@ -93,6 +96,7 @@ public class LoveCommand
         
         await context.Channel.SendMessageAsync(response);
         await context.RespondAsync(ephemeral);
+        await loveActionService.AddLoveAction(context.User.Id, isShy ? null : targetUser.Id);
     }
 
     private static string FormatShyMessageMentions(string message, DiscordUser targetUser)
