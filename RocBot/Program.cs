@@ -23,7 +23,7 @@ builder.Services.AddCommandsExtension((sp, cx) =>
     cx.AddCommands([
         typeof(LoveCommand),
         typeof(PetPetCommand),
-        // typeof(ScoreCommand)
+        typeof(ScoreCommand)
     ]);
 
     cx.AddProcessor(sp.GetRequiredService<SlashCommandProcessor>());
@@ -36,6 +36,13 @@ builder.Services.AddHostedService<Worker>();
 builder.Services.AddSingleton(_ => PetPetGenerator.FromDirectory("Assets/PetPet"));
 builder.Services.AddSingleton<HttpClient>();
 builder.Services.AddDbContext<AppDbContext>();
+builder.Services.AddScoped<LoveActionService>();
 
 IHost host = builder.Build();
+
+using (IServiceScope scope = host.Services.CreateScope())
+{
+    scope.ServiceProvider.GetRequiredService<AppDbContext>().Database.EnsureCreated();
+}
+
 await host.RunAsync();
