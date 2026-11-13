@@ -1,5 +1,7 @@
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using DSharpPlus.Commands;
+using DSharpPlus.Entities;
 
 namespace RocBot.Commands;
 
@@ -9,23 +11,23 @@ public class LoveCommand
 
     private static string[] _openMessages =
     [
-        "Ohh it seems that %is is in a good mood, they seem to love %us :o",
-        "%is just publicly declared their love for %us 💕 bold move!",
-        "Breaking news: %is has feelings for %us ❤️",
-        "%us has been chosen… by %is :p",
-        "%is is sending all the love to %us right now 💌",
-        "A wild affection appeared! %is -> %us 💖",
-        "%is thinks %us deserves a hug… or maybe several :D",
-        "%is has pressed the 'love %us' button, waw :o",
-        "%us, you’ve just been appreciated by %is :)",
-        "%is is legally required to love %us now! >:)",
-        "%is rolled a 20… %us receives maximum love!",
-        "%us has unlocked: 💝 affection from %is",
-        "%is saw %us and immediately smiled 😊",
-        "%is thinks %us is kinda amazing… just saying ✨",
-        "%us has been selected for today’s dose of love by %is 💊❤️",
-        "%is sends a wave of love crashing into %us 🌊💖",
-        "%is cannot hide it anymore… they love %us 😳"
+        "Ohh it seems that %is is in a good mood, they seem to love %ts :o",
+        "%is just publicly declared their love for %ts 💕 bold move!",
+        "Breaking news: %is has feelings for %ts ❤️",
+        "%ts has been chosen… by %is :p",
+        "%is is sending all the love to %ts right now 💌",
+        "A wild affection appeared! %is -> %ts 💖",
+        "%is thinks %ts deserves a hug… or maybe several :D",
+        "%is has pressed the 'love %ts' button, waw :o",
+        "%ts, you’ve just been appreciated by %is :)",
+        "%is is legally required to love %ts now! >:)",
+        "%is rolled a 20… %ts receives maximum love!",
+        "%ts has unlocked: 💝 affection from %is",
+        "%is saw %ts and immediately smiled 😊",
+        "%is thinks %ts is kinda amazing… just saying ✨",
+        "%ts has been selected for today’s dose of love by %is 💊❤️",
+        "%is sends a wave of love crashing into %ts 🌊💖",
+        "%is cannot hide it anymore… they love %ts 😳"
     ];
 
     private static string[] _shyMessages =
@@ -55,8 +57,54 @@ public class LoveCommand
     [Description("Love another user (anonymously) :D")]
     public async ValueTask Love(
         CommandContext context,
+        [Parameter("user"), Description("The one receiving the love")] DiscordUser targetUser,
         [Parameter("i_am_shy"), Description("For if you wish to love someone in secret :)")] bool isShy)
     {
-        await context.RespondAsync("Love you!");
+        if (targetUser.IsBot)
+        {
+            DiscordInteractionResponseBuilder clankerResponse = new DiscordInteractionResponseBuilder()
+                .WithContent("Clankers do not deserve love.")
+                .AsEphemeral();
+
+            await context.RespondAsync(clankerResponse);
+            return;
+        }
+        
+        if (targetUser.Id == context.User.Id)
+        {
+            DiscordInteractionResponseBuilder selfLoveResponse = new DiscordInteractionResponseBuilder()
+                .WithContent("Love yourself first ❤️")
+                .AsEphemeral();
+
+            await context.RespondAsync(selfLoveResponse);
+            return;
+        }
+        
+        DiscordInteractionResponseBuilder ephemeral = new DiscordInteractionResponseBuilder()
+            .WithContent("Your message has been sent!")
+            .AsEphemeral();
+        
+        string[] messages = isShy ? _shyMessages : _openMessages;
+        string message = messages[Random.Shared.Next(messages.Length)];
+
+        string response = isShy
+            ? FormatShyMessageMentions(message, targetUser)
+            : FormatOpenMessageMentions(message, targetUser, context.User);
+        
+        await context.Channel.SendMessageAsync(response);
+        await context.RespondAsync(ephemeral);
+    }
+
+    private static string FormatShyMessageMentions(string message, DiscordUser targetUser)
+    {
+        return message
+            .Replace("%s", targetUser.Mention);
+    }
+
+    private static string FormatOpenMessageMentions(string message, DiscordUser targetUser, DiscordUser initiatingUser)
+    {
+        return message
+            .Replace("%ts", targetUser.Mention)
+            .Replace("%is", initiatingUser.Mention);
     }
 }
