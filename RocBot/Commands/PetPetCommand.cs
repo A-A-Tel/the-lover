@@ -24,7 +24,6 @@ public class PetPetCommand(
                 .WithContent("Clankers do not deserve pets.")
                 .AsEphemeral();
             
-            
             await context.RespondAsync(clankerResponse);
             return;
         }
