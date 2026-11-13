@@ -8,7 +8,8 @@ namespace RocBot.Commands;
 
 public class PetPetCommand(
     PetPetGenerator petGenerator,
-    HttpClient httpClient
+    HttpClient httpClient,
+    LoveActionService loveActionService
     )
 {
     [Command("pet")]
@@ -23,7 +24,6 @@ public class PetPetCommand(
             DiscordInteractionResponseBuilder clankerResponse = new DiscordInteractionResponseBuilder()
                 .WithContent("Clankers do not deserve pets.")
                 .AsEphemeral();
-            
             
             await context.RespondAsync(clankerResponse);
             return;
@@ -51,5 +51,8 @@ public class PetPetCommand(
             .AddFile($"{targetUser.Id}.gif", output);
 
         await context.RespondAsync(response);
+
+        
+        await loveActionService.AddLoveAction(context.User.Id, targetUser.Id);
     }
 }
